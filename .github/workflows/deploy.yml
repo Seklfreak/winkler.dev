@@ -17,18 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject analytics id
-        env:
-          GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
-        run: |
-          if [ -n "$GA_TRACKING_ID" ]; then
-            sed -i "s/__GA_TRACKING_ID__/$GA_TRACKING_ID/g" site/index.html
-          else
-            # no id configured: strip the analytics block entirely
-            sed -i '/<!-- analytics:start -->/,/<!-- analytics:end -->/d' site/index.html
-          fi
-          ! grep -q __GA_TRACKING_ID__ site/index.html
-
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

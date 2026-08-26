@@ -17,6 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache-bust asset URLs
+        run: |
+          V=${GITHUB_SHA::8}
+          sed -i "s|style.css\"|style.css?v=$V\"|g; s|\.woff2\"|.woff2?v=$V\"|g" site/index.html site/404.html
+          sed -i "s|\.woff2\")|.woff2?v=$V\")|g" site/style.css
+          grep -c "v=$V" site/index.html site/404.html site/style.css
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:

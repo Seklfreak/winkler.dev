@@ -43,7 +43,16 @@ a:hover, a:focus-visible { text-decoration: underline; }
   min-height: 100svh;
   overflow: hidden;
   isolation: isolate;
-  background: linear-gradient(to right, var(--yellow) var(--split), var(--black) var(--split));
+  background: var(--yellow);
+}
+/* solid panel instead of a gradient hard stop: gradients get dithered and
+   leave seams under the blended name layer */
+.poster::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; right: 0;
+  left: var(--split);
+  background: var(--black);
 }
 
 .name {
@@ -63,6 +72,8 @@ a:hover, a:focus-visible { text-decoration: underline; }
   white-space: nowrap;
   color: var(--yellow);
   mix-blend-mode: difference;
+  transform: translateZ(0);
+  will-change: transform;
 }
 .name .last {
   padding-left: var(--name-indent);
@@ -102,9 +113,7 @@ a:hover, a:focus-visible { text-decoration: underline; }
     --name-size: 21.5vw;
     --name-indent: 10vw;
   }
-  .poster {
-    background: linear-gradient(to bottom, var(--yellow) var(--split), var(--black) var(--split));
-  }
+  .poster::before { left: 0; top: var(--split); }
   .name .br { display: block; }
   .name .last { font-size: 1em; }
   .name .last.indent { padding-left: var(--name-indent); }

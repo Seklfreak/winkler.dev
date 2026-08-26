@@ -1,0 +1,117 @@
+@font-face {
+  font-family: "Archivo Black";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/archivo-black-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Source Code Pro";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/source-code-pro-500-latin.woff2") format("woff2");
+}
+
+:root {
+  --yellow: #ffe800;
+  --black: #111111;
+  --pad: clamp(20px, 2.8vw, 40px);
+  --split: 61%; /* yellow share of the poster */
+  --name-size: 12.5vw; /* 180px @ 1440 */
+  --name-indent: 14vw; /* 200px @ 1440 */
+  --detail-size: clamp(13px, 1.25vw, 18px);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+
+body {
+  background: var(--yellow);
+  color: var(--black);
+  font-family: "Source Code Pro", Menlo, Consolas, monospace;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+a:hover, a:focus-visible { text-decoration: underline; }
+
+.poster {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(to right, var(--yellow) var(--split), var(--black) var(--split));
+}
+
+.name {
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  right: var(--pad);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: "Archivo Black", "Arial Black", Impact, sans-serif;
+  font-weight: 400;
+  font-size: var(--name-size);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--yellow);
+  mix-blend-mode: difference;
+}
+.name .last {
+  padding-left: var(--name-indent);
+  font-size: 1.2em;
+}
+/* phone-only line breaks */
+.name .br { display: none; }
+
+.details, .links {
+  position: absolute;
+  bottom: var(--pad);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--detail-size);
+  line-height: 1.45;
+}
+.details { left: var(--pad); color: var(--black); }
+.links { right: var(--pad); align-items: flex-end; color: var(--yellow); }
+
+/* Tablet (834 artboard): slightly smaller name, tighter indent */
+@media (max-width: 1024px) {
+  :root {
+    --split: 60%;
+    --name-size: 12vw;
+    --name-indent: 10.8vw;
+  }
+}
+
+/* Phone (390 artboard): vertical split, name broken over four lines */
+@media (max-width: 600px) {
+  :root {
+    --split: 57%;
+    --name-size: 21.5vw;
+    --name-indent: 10vw;
+  }
+  .poster {
+    background: linear-gradient(to bottom, var(--yellow) var(--split), var(--black) var(--split));
+  }
+  .name .br { display: block; }
+  .name .last { font-size: 1em; }
+  .name .last.indent { padding-left: var(--name-indent); }
+  .details { color: var(--yellow); }
+}
+
+/* Very short landscape viewports: keep the name from colliding with the footer */
+@media (max-height: 480px) and (min-width: 601px) {
+  :root { --name-size: 9vw; }
+}

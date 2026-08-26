@@ -2,36 +2,47 @@ name: Deploy
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy
+  cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.org/
-      - name: Install and Build
-        run: |
-          npm install
-          npm run build
+      - uses: actions/checkout@v4
+
+      - name: Inject analytics id
         env:
           GA_TRACKING_ID: ${{ secrets.GA_TRACKING_ID }}
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4.2.2
+        run: |
+          if [ -n "$GA_TRACKING_ID" ]; then
+            sed -i "s/__GA_TRACKING_ID__/$GA_TRACKING_ID/g" site/index.html
+          else
+            # no id configured: strip the analytics block entirely
+            sed -i '/<!-- analytics:start -->/,/<!-- analytics:end -->/d' site/index.html
+          fi
+          ! grep -q __GA_TRACKING_ID__ site/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          BRANCH: gh-pages
-          FOLDER: public
-          CLEAN: true
-      - name: Purge cache
+          branch: gh-pages
+          folder: site
+          clean: true
+
+      - name: Purge Cloudflare cache
         uses: jakejarvis/cloudflare-purge-action@v0.3.0
         env:
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+
       - name: Run Lighthouse
         uses: foo-software/lighthouse-check-action@master
         with:
-          urls: 'https://winkler.dev/'
+          urls: "https://winkler.dev/"

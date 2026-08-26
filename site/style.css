@@ -18,6 +18,7 @@
   --black: #111111;
   --pad: clamp(20px, 2.8vw, 40px);
   --split: 61%; /* yellow share of the poster */
+  --rest: 39%; /* black share (100% - split) */
   --name-size: 12.5vw; /* 180px @ 1440 */
   --name-indent: 14vw; /* 200px @ 1440 */
   --detail-size: clamp(13px, 1.25vw, 18px);
@@ -45,8 +46,7 @@ a:hover, a:focus-visible { text-decoration: underline; }
   isolation: isolate;
   background: var(--yellow);
 }
-/* solid panel instead of a gradient hard stop: gradients get dithered and
-   leave seams under the blended name layer */
+/* black panel */
 .poster::before {
   content: "";
   position: absolute;
@@ -57,12 +57,8 @@ a:hover, a:focus-visible { text-decoration: underline; }
 
 .name {
   position: absolute;
-  top: var(--pad);
-  left: var(--pad);
-  right: var(--pad);
+  inset: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
   font-family: "Archivo Black", "Arial Black", Impact, sans-serif;
   font-weight: 400;
   font-size: var(--name-size);
@@ -70,11 +66,20 @@ a:hover, a:focus-visible { text-decoration: underline; }
   letter-spacing: -0.05em;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--yellow);
-  mix-blend-mode: difference;
-  transform: translateZ(0);
-  will-change: transform;
+  pointer-events: none;
 }
+/* The name is rendered twice and each copy is hard-clipped to its panel.
+   (mix-blend-mode would be simpler, but Firefox and GPU-composited Chrome
+   leak the blended layer's edge as a thin line.) */
+.name .layer {
+  position: absolute;
+  inset: 0;
+  padding: var(--pad);
+  display: flex;
+  flex-direction: column;
+}
+.name .on-yellow { color: var(--black); clip-path: inset(0 var(--rest) 0 0); }
+.name .on-black  { color: var(--yellow); clip-path: inset(0 0 0 var(--split)); }
 .name .last {
   padding-left: var(--name-indent);
   font-size: 1.2em;
@@ -101,6 +106,7 @@ a:hover, a:focus-visible { text-decoration: underline; }
 @media (max-width: 1024px) {
   :root {
     --split: 60%;
+    --rest: 40%;
     --name-size: 12vw;
     --name-indent: 10.8vw;
   }
@@ -110,10 +116,13 @@ a:hover, a:focus-visible { text-decoration: underline; }
 @media (max-width: 600px) {
   :root {
     --split: 57%;
+    --rest: 43%;
     --name-size: 21.5vw;
     --name-indent: 10vw;
   }
   .poster::before { left: 0; top: var(--split); }
+  .name .on-yellow { clip-path: inset(0 0 var(--rest) 0); }
+  .name .on-black  { clip-path: inset(var(--split) 0 0 0); }
   .name .br { display: block; }
   .name .last { font-size: 1em; }
   .name .last.indent { padding-left: var(--name-indent); }

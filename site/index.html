@@ -14,6 +14,11 @@
   <link rel="preload" href="fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/source-code-pro-500-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
+  <!-- Self-hosted Umami (winkcloud repo). Served from a subdomain of this
+       site, so it is first-party and survives tracker blocklists better than
+       a third-party origin would. data-domains stops local previews from
+       polluting the stats; www 301s to the apex so it needs no entry. -->
+  <script defer src="https://stats.winkler.dev/s.js" data-website-id="d7d95658-dc3f-4fa7-a4c6-a7434a8b52ea" data-domains="winkler.dev"></script>
 </head>
 <body>
   <main class="poster">

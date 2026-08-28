@@ -24,18 +24,20 @@ jobs:
           sed -i "s|\.woff2\")|.woff2?v=$V\")|g" site/style.css
           grep -c "v=$V" site/index.html site/404.html site/style.css
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+      # Cloudflare Pages, not GitHub Pages: GitHub could never issue a
+      # certificate for this domain (it resolves the name publicly, sees
+      # Cloudflare's addresses rather than its own, and refuses), and the usual
+      # grey-cloud workaround is impossible because the .dev TLD is
+      # HSTS-preloaded. Pages serves the files directly, so there is no origin
+      # certificate to provision.
+      #
+      # No cache purge step any more — Pages invalidates on deploy.
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
         with:
-          branch: gh-pages
-          folder: site
-          clean: true
-
-      - name: Purge Cloudflare cache
-        uses: jakejarvis/cloudflare-purge-action@v0.3.0
-        env:
-          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy site --project-name=winkler-dev --branch=master
 
       - name: Run Lighthouse
         uses: foo-software/lighthouse-check-action@master

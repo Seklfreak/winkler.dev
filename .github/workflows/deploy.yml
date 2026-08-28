@@ -39,7 +39,12 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy site --project-name=winkler-dev --branch=master
 
+      # Pinned to a commit, not @master. Every action in a job can read every
+      # secret in that job, so a mutable ref on a third-party action means its
+      # owner can change what runs here at any time — and this job holds a
+      # Cloudflare deploy token in a public repo. Renovate keeps the pin current
+      # via the version comment.
       - name: Run Lighthouse
-        uses: foo-software/lighthouse-check-action@master
+        uses: foo-software/lighthouse-check-action@a80267da2e0244b8a2e457a8575fc47590615852 # v12.0.1
         with:
           urls: "https://winkler.dev/"
